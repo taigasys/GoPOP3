@@ -19,6 +19,8 @@ type Client struct {
 	Greetings  string
 } 
 
+//Returns a new Client connected to a POP3 server at addr.
+//The format of addr is "ip:port"
 func Dial(addr string) (client *Client, err os.Error) {
 	conn, err := net.Dial("tcp", "", addr)
 	if err != nil {
@@ -29,6 +31,8 @@ func Dial(addr string) (client *Client, err os.Error) {
 
 }
 
+//NewClient returns a new Client using an existing connection
+//name is used as the Servername
 func NewClient(conn net.Conn, name string) (*Client, os.Error) {
 	client := new(Client)
 
@@ -44,7 +48,7 @@ func NewClient(conn net.Conn, name string) (*Client, os.Error) {
 	client.Greetings = msg
 	return client, nil
 }
-
+//WriteMessage sends the message to the POP3 server
 func (client *Client) WriteMessage(message string) os.Error {
 	if client == nil {
 		return os.NewError("Connection hasn't been established")
@@ -57,6 +61,8 @@ func (client *Client) WriteMessage(message string) os.Error {
 	return err1
 }
 
+//ReadMessage reads a single or multiline response from the POP3 server
+//It doesnt finish, until it has received a message
 func (client *Client) ReadMessage(multiLine bool) (string, os.Error) {
 	if client == nil {
 		return "", os.NewError("Connection hasn't been established")
