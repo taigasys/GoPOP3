@@ -9,6 +9,8 @@ import (
 )
 
 const (
+	//Carriage Return + Line Feed
+	//CRLF is appended at the end of each commands
 	CRLF = "\r\n" 
 )
 
@@ -36,18 +38,23 @@ func Dial(addr string) (client *Client, err os.Error) {
 func NewClient(conn net.Conn, name string) (*Client, os.Error) {
 	client := new(Client)
 
+	//Create a new ReadWriter and store it
 	stream := bufio.NewReadWriter(bufio.NewReader(conn), bufio.NewWriter(conn))
 	client.stream = stream
 
+	//Download the greetings message from the POP3 server
 	msg, err := client.ReadMessage(false)
 
 	if err != nil {
 		return nil, err
 	}
 	
+	client.ServerName = name
 	client.Greetings = msg
+	
 	return client, nil
 }
+
 //WriteMessage sends the message to the POP3 server
 func (client *Client) WriteMessage(message string) os.Error {
 	if client == nil {
@@ -64,10 +71,13 @@ func (client *Client) WriteMessage(message string) os.Error {
 //ReadMessage reads a single or multiline response from the POP3 server
 //It doesnt finish, until it has received a message
 func (client *Client) ReadMessage(multiLine bool) (string, os.Error) {
+
+	//Check, whether the client connection has already been 
 	if client == nil {
 		return "", os.NewError("Connection hasn't been established")
 	}
 	
+	//Get first line of the response
 	msg, err := client.stream.ReadString('\n')
 
 	if err != nil {
@@ -77,28 +87,29 @@ func (client *Client) ReadMessage(multiLine bool) (string, os.Error) {
 	//Check, whether the response starts with "+OK" or "-ERR", otherwise return an error
 	if strings.HasPrefix(msg, "+OK") {
 		msg = msg[4:]
+		
+		if multiLine {
+
+			for true {
+				line, err1 := client.stream.ReadString('\n')
+
+				if err1 != nil {
+					return "", err1
+				}
+			
+				if line == "." + CRLF {
+					break;
+				}
+			
+				msg += line
+			}
+		}
+	
 	} else if strings.HasPrefix(msg, "-ERR") {
 		return "", os.NewError(msg[5:])
 	} else {
 		return "", os.NewError("Unkown Response received")
 	}
-
-	if multiLine {
-
-		for true {
-			line, err1 := client.stream.ReadString('\n')
-
-			if err1 != nil {
-				return "", err1
-			}
-			
-			if line == "." + CRLF {
-				break;
-			}
-			
-			msg += line
-		}
-	}
 	
-	return msg[4:], nil
+	return msg, nil
 }
