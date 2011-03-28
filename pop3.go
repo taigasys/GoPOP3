@@ -18,7 +18,7 @@ type Client struct {
 	conn       net.Conn
 	stream     *bufio.ReadWriter
 	ServerName string
-	Greetings  string
+	Greeting  string
 } 
 
 //Returns a new Client connected to a POP3 server at addr.
@@ -42,7 +42,7 @@ func NewClient(conn net.Conn, name string) (*Client, os.Error) {
 	stream := bufio.NewReadWriter(bufio.NewReader(conn), bufio.NewWriter(conn))
 	client.stream = stream
 
-	//Download the greetings message from the POP3 server
+	//Download the greeting from the POP3 server
 	msg, err := client.ReadMessage(false)
 
 	if err != nil {
@@ -50,7 +50,7 @@ func NewClient(conn net.Conn, name string) (*Client, os.Error) {
 	}
 	
 	client.ServerName = name
-	client.Greetings = msg
+	client.Greeting = msg
 	
 	return client, nil
 }
