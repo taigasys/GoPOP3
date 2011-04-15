@@ -11,7 +11,7 @@ import (
 const (
 	//Carriage Return + Line Feed
 	//CRLF is appended at the end of each commands
-	CRLF = "\r\n" 
+	CRLF = "\r\n"
 )
 
 type Client struct {
@@ -19,7 +19,7 @@ type Client struct {
 	stream     *bufio.ReadWriter
 	ServerName string
 	Greeting  string
-} 
+}
 
 //Returns a new Client connected to a POP3 server at addr.
 //The format of addr is "ip:port"
@@ -48,10 +48,10 @@ func NewClient(conn net.Conn, name string) (*Client, os.Error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	client.ServerName = name
 	client.Greeting = msg
-	
+
 	return client, nil
 }
 
@@ -60,7 +60,7 @@ func (client *Client) WriteMessage(message string) os.Error {
 	if client == nil {
 		return os.NewError("Connection hasn't been established")
 	}
-	
+
 	tmp := message + CRLF
 	_, err1 := client.stream.WriteString(tmp)
 	client.stream.Flush()
@@ -72,11 +72,11 @@ func (client *Client) WriteMessage(message string) os.Error {
 //It doesnt finish, until it has received a message
 func (client *Client) ReadMessage(multiLine bool) (string, os.Error) {
 
-	//Check, whether the client connection has already been 
+	//Check, whether the client connection has already been
 	if client == nil {
 		return "", os.NewError("Connection hasn't been established")
 	}
-	
+
 	//Get first line of the response
 	msg, err := client.stream.ReadString('\n')
 
@@ -87,7 +87,7 @@ func (client *Client) ReadMessage(multiLine bool) (string, os.Error) {
 	//Check, whether the response starts with "+OK" or "-ERR", otherwise return an error
 	if strings.HasPrefix(msg, "+OK") {
 		msg = msg[4:]
-		
+
 		if multiLine {
 
 			for true {
@@ -96,20 +96,20 @@ func (client *Client) ReadMessage(multiLine bool) (string, os.Error) {
 				if err1 != nil {
 					return "", err1
 				}
-			
+
 				if line == "." + CRLF {
 					break;
 				}
-			
+
 				msg += line
 			}
 		}
-	
+
 	} else if strings.HasPrefix(msg, "-ERR") {
 		return "", os.NewError(msg[5:])
 	} else {
 		return "", os.NewError("Unkown Response received")
 	}
-	
+
 	return msg, nil
 }
