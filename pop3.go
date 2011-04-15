@@ -24,7 +24,7 @@ type Client struct {
 //Returns a new Client connected to a POP3 server at addr.
 //The format of addr is "ip:port"
 func Dial(addr string) (client *Client, err os.Error) {
-	conn, err := net.Dial("tcp", "", addr)
+	conn, err := net.Dial("tcp", addr)
 	if err != nil {
 		return nil, err
 	}
