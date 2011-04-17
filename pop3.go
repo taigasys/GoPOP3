@@ -113,3 +113,9 @@ func (client *Client) ReadMessage(multiLine bool) (string, os.Error) {
 
 	return msg, nil
 }
+
+//Authenticates with the Server
+//It uses the provided Authenticationtype auth
+func (client *Client) Authenticate(auth Auth) (string, os.Error) {
+	return "", auth.Authenticate(client)
+}
