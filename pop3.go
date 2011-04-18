@@ -126,7 +126,7 @@ func (client *Client) NOOP() (string, os.Error) {
 }
 
 func (client *Client) Reset() (string, os.Error) {
-	client.WriteMessage("REST")
+	client.WriteMessage("RSET")
 	return client.ReadMessage(false)
 }
 
