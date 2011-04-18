@@ -119,3 +119,22 @@ func (client *Client) ReadMessage(multiLine bool) (string, os.Error) {
 func (client *Client) Authenticate(auth Auth) (string, os.Error) {
 	return "", auth.Authenticate(client)
 }
+
+func (client *Client) NOOP() (string, os.Error) {
+	client.WriteMessage("NOOP")
+	return client.ReadMessage(false)
+}
+
+func (client *Client) Reset() (string, os.Error) {
+	client.WriteMessage("REST")
+	return client.ReadMessage(false)
+}
+
+func (client *Client) Delete(index int) (string, os.Error) {
+	if index < 0 {
+		return "", os.NewError("Index must be positiv")
+	}
+
+	client.WriteMessage("DELE" + string(index))
+	return client.ReadMessage(false)
+}
