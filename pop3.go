@@ -1,3 +1,4 @@
+//Implements the Post Office Protocol 3 as defined in RFC 1939
 package pop3
 
 
@@ -127,16 +128,20 @@ func (client *Client) Authenticate(auth Auth) (string, os.Error) {
 	return "", auth.Authenticate(client)
 }
 
+//Sends a "NOOP" command and the server will just reply with a positive repsonse
 func (client *Client) Ping() (string, os.Error) {
 	client.WriteMessage(NOOP)
 	return client.ReadMessage(false)
 }
 
+//Messages that have been marked as "deleted" will be unmarked after this command
 func (client *Client) Reset() (string, os.Error) {
 	client.WriteMessage(RESET)
 	return client.ReadMessage(false)
 }
 
+//Marks the message at "index" as "deleted"
+//All marked messages will be deleted, when you close the connection with "QUIT"
 func (client *Client) Delete(index int) (string, os.Error) {
 	if index < 0 {
 		return "", os.NewError("Index must be positiv")
