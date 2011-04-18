@@ -12,6 +12,13 @@ const (
 	//Carriage Return + Line Feed
 	//CRLF is appended at the end of each commands
 	CRLF = "\r\n"
+
+	//POP3-Commands
+	USER = "USER"
+	PASSWORD = "PASS"
+	NOOP = "NOOP"
+	RESET = "RSET"
+	DELETE = "DELE"
 )
 
 type Client struct {
@@ -121,12 +128,12 @@ func (client *Client) Authenticate(auth Auth) (string, os.Error) {
 }
 
 func (client *Client) NOOP() (string, os.Error) {
-	client.WriteMessage("NOOP")
+	client.WriteMessage(NOOP)
 	return client.ReadMessage(false)
 }
 
 func (client *Client) Reset() (string, os.Error) {
-	client.WriteMessage("RSET")
+	client.WriteMessage(RESET)
 	return client.ReadMessage(false)
 }
 
@@ -135,6 +142,6 @@ func (client *Client) Delete(index int) (string, os.Error) {
 		return "", os.NewError("Index must be positiv")
 	}
 
-	client.WriteMessage("DELE" + string(index))
+	client.WriteMessage(DELETE + " " + string(index))
 	return client.ReadMessage(false)
 }
