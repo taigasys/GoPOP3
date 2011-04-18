@@ -1,3 +1,7 @@
+//Copyright 2011, Andreas Sinz
+// Use of this source code is governed by the GPLv2
+// license that can be found in the LICENSE file.
+
 package pop3
 
 import "os"

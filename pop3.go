@@ -1,3 +1,8 @@
+//Copyright 2011, Andreas Sinz
+// Use of this source code is governed by the GPLv2
+// license that can be found in the LICENSE file.
+
+
 //Implements the Post Office Protocol 3 as defined in RFC 1939
 package pop3
 
