@@ -127,7 +127,7 @@ func (client *Client) Authenticate(auth Auth) (string, os.Error) {
 	return "", auth.Authenticate(client)
 }
 
-func (client *Client) NOOP() (string, os.Error) {
+func (client *Client) Ping() (string, os.Error) {
 	client.WriteMessage(NOOP)
 	return client.ReadMessage(false)
 }
