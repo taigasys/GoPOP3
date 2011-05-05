@@ -25,12 +25,12 @@ func (auth *PlainAuthentication) Authenticate(client *Client) os.Error {
 	if errUser != nil {
 		return errUser
 	}
-		
+
 	client.WriteMessage(PASSWORD + " " + auth.pass)
 	_, errPass := client.ReadMessage(false)
 	if errPass != nil {
 		return errPass
 	}
-	
+
 	return nil
 }
