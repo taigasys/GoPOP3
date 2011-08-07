@@ -25,6 +25,9 @@ const (
 	NOOP = "NOOP"
 	RESET = "RSET"
 	DELETE = "DELE"
+
+	//Error messages
+	IndexERR = "Index must be greater than zero"
 )
 
 type Client struct {
@@ -149,7 +152,7 @@ func (client *Client) Reset() (string, os.Error) {
 //All marked messages will be deleted, when you close the connection with "QUIT"
 func (client *Client) Delete(index int) (string, os.Error) {
 	if index < 0 {
-		return "", os.NewError("Index must be positiv")
+		return "", os.NewError(IndexERR)
 	}
 
 	client.WriteMessage(DELETE + " " + string(index))
