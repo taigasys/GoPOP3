@@ -4,10 +4,12 @@
 
 package pop3
 
-import "os"
+import (
+	"os"
+)
 
 type Auth interface {
-	Authenticate(client *Client) os.Error
+	Authenticate(client *Client) error
 }
 
 
@@ -19,7 +21,7 @@ func CreatePlainAuthentication (user, pass string) *PlainAuthentication {
 	return &PlainAuthentication{user, pass}
 }
 
-func (auth *PlainAuthentication) Authenticate(client *Client) os.Error {
+func (auth *PlainAuthentication) Authenticate(client *Client) error {
 	client.WriteMessage(USER + " " + auth.user)
 	_, errUser := client.ReadMessage(false)
 	if errUser != nil {

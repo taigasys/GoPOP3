@@ -9,6 +9,7 @@ package pop3
 
 import (
 	"net"
+	"errors"
 	"os"
 	"bufio"
 	"strings"
@@ -41,7 +42,7 @@ type Client struct {
 
 //Returns a new Client connected to a POP3 server at addr.
 //The format of addr is "ip:port"
-func Dial(addr string) (client *Client, err os.Error) {
+func Dial(addr string) (client *Client, err error) {
 	conn, err := net.Dial("tcp", addr)
 	if err != nil {
 		return nil, err
@@ -53,7 +54,7 @@ func Dial(addr string) (client *Client, err os.Error) {
 
 //NewClient returns a new Client using an existing connection
 //name is used as the Servername
-func NewClient(conn net.Conn, name string) (*Client, os.Error) {
+func NewClient(conn net.Conn, name string) (*Client, error) {
 	client := new(Client)
 
 	//Create a new ReadWriter and store it
@@ -74,9 +75,9 @@ func NewClient(conn net.Conn, name string) (*Client, os.Error) {
 }
 
 //WriteMessage sends the message to the POP3 server
-func (client *Client) WriteMessage(message string) os.Error {
+func (client *Client) WriteMessage(message string) error {
 	if client == nil {
-		return os.NewError("Connection hasn't been established")
+		return errors.New("Connection hasn't been established")
 	}
 
 	tmp := message + CRLF
@@ -88,11 +89,11 @@ func (client *Client) WriteMessage(message string) os.Error {
 
 //ReadMessage reads a single or multiline response from the POP3 server
 //It doesnt finish, until it has received a message
-func (client *Client) ReadMessage(multiLine bool) (string, os.Error) {
+func (client *Client) ReadMessage(multiLine bool) (string, error) {
 
 	//Check, whether the client connection has already been
 	if client == nil {
-		return "", os.NewError("Connection hasn't been established")
+		return "", errors.New("Connection hasn't been established")
 	}
 
 	//Get first line of the response
@@ -124,9 +125,9 @@ func (client *Client) ReadMessage(multiLine bool) (string, os.Error) {
 		}
 
 	} else if strings.HasPrefix(msg, "-ERR") {
-		return "", os.NewError(msg[5:])
+		return "", errors.New(msg[5:])
 	} else {
-		return "", os.NewError("Unkown Response received")
+		return "", errors.New("Unkown Response received")
 	}
 
 	return msg, nil
@@ -134,27 +135,27 @@ func (client *Client) ReadMessage(multiLine bool) (string, os.Error) {
 
 //Authenticates with the Server
 //It uses the provided Authenticationtype auth
-func (client *Client) Authenticate(auth Auth) (string, os.Error) {
+func (client *Client) Authenticate(auth Auth) (string, error) {
 	return "", auth.Authenticate(client)
 }
 
 //Sends a "NOOP" command and the server will just reply with a positive repsonse
-func (client *Client) Ping() (string, os.Error) {
+func (client *Client) Ping() (string, error) {
 	client.WriteMessage(NOOP)
 	return client.ReadMessage(false)
 }
 
 //Messages that have been marked as "deleted" will be unmarked after this command
-func (client *Client) Reset() (string, os.Error) {
+func (client *Client) Reset() (string, error) {
 	client.WriteMessage(RESET)
 	return client.ReadMessage(false)
 }
 
 //Mark a mail as "deleted"
 //All marked mails will be deleted, when you close the connection with "QUIT"
-func (client *Client) Delete(index int) (string, os.Error) {
+func (client *Client) Delete(index int) (string, error) {
 	if index < 0 {
-		return "", os.NewError(IndexERR)
+		return "", errors.New(IndexERR)
 	}
 
 	client.WriteMessage(DELETE + " " + string(index))
@@ -163,14 +164,14 @@ func (client *Client) Delete(index int) (string, os.Error) {
 
 //Issues the Quit-Command, so the POP3 session enters the UPDATE state
 //All mails, which are marked as "deleted", are going to be removed now
-func (client *Client) Quit() (string, os.Error) {
+func (client *Client) Quit() (string, error) {
 	client.WriteMessage(QUIT)
 	return client.ReadMessage(false)
 }
 
 //Retrieves the count of mails and the size of all those mails in the mailbox
 //Mails, which are marked as "deleted", won't show up
-func (client *Client) Status() (mailCount, mailBoxSize int, err os.Error) {
+func (client *Client) Status() (mailCount, mailBoxSize int, err error) {
 	client.WriteMessage(STAT)
 
 	var response string
@@ -183,7 +184,7 @@ func (client *Client) Status() (mailCount, mailBoxSize int, err os.Error) {
 	responseParts := strings.Split(response, " ")
 
 	if len(responseParts) != 2 {
-		return -1, -1, os.NewError("Unkown Response Received")
+		return -1, -1, errors.New("Unkown Response Received")
 	}
 
 
