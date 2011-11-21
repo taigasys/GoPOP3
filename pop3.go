@@ -10,9 +10,9 @@ package pop3
 import (
 	"net"
 	"errors"
-	"os"
 	"bufio"
 	"strings"
+	"strconv"
 )
 
 const (
@@ -172,7 +172,7 @@ func (client *Client) Quit() (string, error) {
 //Retrieves the count of mails and the size of all those mails in the mailbox
 //Mails, which are marked as "deleted", won't show up
 func (client *Client) Status() (mailCount, mailBoxSize int, err error) {
-	client.WriteMessage(STAT)
+	client.WriteMessage(STATUS)
 
 	var response string
 	response, err = client.ReadMessage(false)
