@@ -25,6 +25,7 @@ const (
 	NOOP = "NOOP"
 	RESET = "RSET"
 	DELETE = "DELE"
+	QUIT = "QUIT"
 
 	//Error messages
 	IndexERR = "Index must be greater than zero"
@@ -156,5 +157,12 @@ func (client *Client) Delete(index int) (string, os.Error) {
 	}
 
 	client.WriteMessage(DELETE + " " + string(index))
+	return client.ReadMessage(false)
+}
+
+//Issues the Quit-Command, so the POP3 session enters the UPDATE state
+//All mails, which are marked as "deleted", are going to be removed now
+func (client *Client) Quit() (string, os.Error) {
+	client.WriteMessage(QUIT)
 	return client.ReadMessage(false)
 }
