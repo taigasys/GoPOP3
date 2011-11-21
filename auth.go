@@ -4,10 +4,6 @@
 
 package pop3
 
-import (
-	"os"
-)
-
 type Auth interface {
 	Authenticate(client *Client) error
 }
