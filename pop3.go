@@ -149,8 +149,8 @@ func (client *Client) Reset() (string, os.Error) {
 	return client.ReadMessage(false)
 }
 
-//Marks the message at "index" as "deleted"
-//All marked messages will be deleted, when you close the connection with "QUIT"
+//Mark a mail as "deleted"
+//All marked mails will be deleted, when you close the connection with "QUIT"
 func (client *Client) Delete(index int) (string, os.Error) {
 	if index < 0 {
 		return "", os.NewError(IndexERR)
