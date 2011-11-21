@@ -26,6 +26,7 @@ const (
 	RESET = "RSET"
 	DELETE = "DELE"
 	QUIT = "QUIT"
+	STATUS = "STAT"
 
 	//Error messages
 	IndexERR = "Index must be greater than zero"
@@ -165,4 +166,34 @@ func (client *Client) Delete(index int) (string, os.Error) {
 func (client *Client) Quit() (string, os.Error) {
 	client.WriteMessage(QUIT)
 	return client.ReadMessage(false)
+}
+
+//Retrieves the count of mails and the size of all those mails in the mailbox
+//Mails, which are marked as "deleted", won't show up
+func (client *Client) Status() (mailCount, mailBoxSize int, err os.Error) {
+	client.WriteMessage(STAT)
+
+	var response string
+	response, err = client.ReadMessage(false)
+
+	if err != nil {
+		return
+	}
+
+	responseParts := strings.Split(response, " ")
+
+	if len(responseParts) != 2 {
+		return -1, -1, os.NewError("Unkown Response Received")
+	}
+
+
+	if mailCount, err = strconv.Atoi(responseParts[0]); err != nil {
+		return
+	}
+
+	if mailBoxSize, err = strconv.Atoi(responseParts[1]); err != nil {
+		return
+	}
+
+	return
 }
