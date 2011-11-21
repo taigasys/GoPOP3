@@ -153,7 +153,7 @@ func (client *Client) Reset() (string, error) {
 
 //Mark a mail as "deleted"
 //All marked mails will be deleted, when you close the connection with "QUIT"
-func (client *Client) Delete(index int) (string, error) {
+func (client *Client) MarkMailAsDeleted(index int) (string, error) {
 	if index < 0 {
 		return "", errors.New(IndexERR)
 	}
@@ -171,7 +171,7 @@ func (client *Client) Quit() (string, error) {
 
 //Retrieves the count of mails and the size of all those mails in the mailbox
 //Mails, which are marked as "deleted", won't show up
-func (client *Client) Status() (mailCount, mailBoxSize int, err error) {
+func (client *Client) GetStatus() (mailCount, mailBoxSize int, err error) {
 	client.WriteMessage(STATUS)
 
 	var response string
