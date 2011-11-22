@@ -30,9 +30,11 @@ const (
 	QUIT = "QUIT"
 	STATUS = "STAT"
 	LIST = "LIST"
+)
 
-	//Error messages
-	IndexERR = "Index must be greater than zero"
+var (
+	IndexERR = errors.New("Index must be greater than zero")
+	UnkownResponseERR = errors.New("Unkown Response received")
 )
 
 type Client struct {
@@ -129,7 +131,7 @@ func (client *Client) ReadMessage(multiLine bool) (string, error) {
 	} else if strings.HasPrefix(msg, "-ERR") {
 		return "", errors.New(msg[5:])
 	} else {
-		return "", errors.New("Unkown Response received")
+		return "", UnkownResponseERR
 	}
 
 	return msg, nil
@@ -158,7 +160,7 @@ func (client *Client) Reset() (string, error) {
 //All marked mails will be deleted, when you close the connection with "QUIT"
 func (client *Client) MarkMailAsDeleted(index int) (string, error) {
 	if index < 0 {
-		return "", errors.New(IndexERR)
+		return "", IndexERR
 	}
 
 	client.WriteMessage(DELETE + " " + string(index))
@@ -190,7 +192,7 @@ func (client *Client) GetStatus() (mailCount, mailBoxSize int, err error) {
 		mailCount = digits[0]
 		mailBoxSize = digits[1]
 	} else {
-		err = errors.New("Unkown Response Received")
+		err = UnkownResponseERR
 	}
 
 	return
@@ -226,7 +228,7 @@ func (client *Client) GetMailStatus(index int) (mailIndex, mailSize int, err err
 		mailIndex = digits[0]
 		mailSize = digits[1]
 	} else {
-		err = errors.New("Unkown Response Received")
+		err = UnkownResponseERR
 	}
 
 	return
