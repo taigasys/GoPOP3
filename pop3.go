@@ -184,19 +184,14 @@ func (client *Client) GetStatus() (mailCount, mailBoxSize int, err error) {
 		return
 	}
 
-	responseParts := strings.Split(response, " ")
+	digits := getDigitsFromLine(response)
 
-	if len(responseParts) != 2 {
-		return -1, -1, errors.New("Unkown Response Received")
+	if len(digits) == 2 {
+		mailCount = digits[0]
+		mailBoxSize = digits[1]
+	} else {
+		err = errors.New("Unkown Response Received")
 	}
-
-	countString := strings.TrimSpace(responseParts[0])
-	if mailCount, err = strconv.Atoi(countString); err != nil {
-		return
-	}
-
-	sizeString := strings.TrimSpace(responseParts[1])
-	mailBoxSize, err = strconv.Atoi(sizeString)
 
 	return
 }
@@ -225,19 +220,14 @@ func (client *Client) GetMailStatus(index int) (mailIndex, mailSize int, err err
 		return
 	}
 
-	responseParts := strings.Split(response, " ")
+	digits := getDigitsFromLine(response)
 
-	if len(responseParts) != 2 {
-		return -1, -1, errors.New("Unkown Response Received")
+	if len(digits) == 2 {
+		mailIndex = digits[0]
+		mailSize = digits[1]
+	} else {
+		err = errors.New("Unkown Response Received")
 	}
-
-	indexString := strings.TrimSpace(responseParts[0])
-	if mailIndex, err = strconv.Atoi(indexString); err != nil {
-		return
-	}
-
-	sizeString := strings.TrimSpace(responseParts[1])
-	mailSize, err = strconv.Atoi(sizeString)
 
 	return
 }
