@@ -2,18 +2,16 @@
 // Use of this source code is governed by the GPLv2
 // license that can be found in the LICENSE file.
 
-
 //Implements the Post Office Protocol 3 as defined in RFC 1939
 package pop3
 
-
 import (
-	"net"
-	"errors"
 	"bufio"
-	"strings"
-	"strconv"
+	"errors"
 	"fmt"
+	"net"
+	"strconv"
+	"strings"
 )
 
 const (
@@ -22,18 +20,18 @@ const (
 	CRLF = "\r\n"
 
 	//POP3-Commands
-	USER = "USER"
+	USER     = "USER"
 	PASSWORD = "PASS"
-	NOOP = "NOOP"
-	RESET = "RSET"
-	DELETE = "DELE"
-	QUIT = "QUIT"
-	STATUS = "STAT"
-	LIST = "LIST"
+	NOOP     = "NOOP"
+	RESET    = "RSET"
+	DELETE   = "DELE"
+	QUIT     = "QUIT"
+	STATUS   = "STAT"
+	LIST     = "LIST"
 )
 
 var (
-	IndexERR = errors.New("Index must be greater than zero")
+	IndexERR          = errors.New("Index must be greater than zero")
 	UnkownResponseERR = errors.New("Unkown Response received")
 )
 
@@ -41,7 +39,7 @@ type Client struct {
 	conn       net.Conn
 	stream     *bufio.ReadWriter
 	ServerName string
-	Greeting  string
+	Greeting   string
 }
 
 //Returns a new Client connected to a POP3 server at addr.
@@ -120,8 +118,8 @@ func (client *Client) ReadMessage(multiLine bool) (string, error) {
 					return "", err1
 				}
 
-				if line == "." + CRLF {
-					break;
+				if line == "."+CRLF {
+					break
 				}
 
 				msg += line
@@ -181,7 +179,7 @@ func (client *Client) GetStatus() (mailCount, mailBoxSize int, err error) {
 
 	var response string
 	response, err = client.ReadMessage(false)
-	
+
 	if err != nil {
 		return
 	}
