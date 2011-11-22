@@ -213,3 +213,30 @@ func (client *Client) GetMailList() (response string, err error) {
 	response = response[strings.Index(response, "\n"):]
 	return
 }
+
+//Returns the index and the size of the mail at index
+func (client *Client) GetMailStatus(index int) (mailIndex, mailSize int, err error) {
+	cmdString := fmt.Sprintf("%s %d", LIST, index)
+	client.WriteMessage(cmdString)
+
+	var response string
+	if response, err = client.ReadMessage(false); err != nil {
+		return
+	}
+
+	responseParts := strings.Split(response, " ")
+
+	if len(responseParts) != 2 {
+		return -1, -1, errors.New("Unkown Response Received")
+	}
+
+	indexString := strings.TrimSpace(responseParts[0])
+	if mailIndex, err = strconv.Atoi(indexString); err != nil {
+		return
+	}
+
+	sizeString := strings.TrimSpace(responseParts[1])
+	mailSize, err = strconv.Atoi(sizeString)
+
+	return
+}
