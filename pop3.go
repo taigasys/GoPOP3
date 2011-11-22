@@ -13,6 +13,7 @@ import (
 	"bufio"
 	"strings"
 	"strconv"
+	"fmt"
 )
 
 const (
@@ -237,6 +238,17 @@ func (client *Client) GetMailStatus(index int) (mailIndex, mailSize int, err err
 
 	sizeString := strings.TrimSpace(responseParts[1])
 	mailSize, err = strconv.Atoi(sizeString)
+
+	return
+}
+
+func getDigitsFromLine(line string) (digits []int) {
+
+	for _, part := range strings.Split(line, " ") {
+		if tmp, convertErr := strconv.Atoi(strings.TrimSpace(part)); convertErr == nil {
+			digits = append(digits, tmp)
+		}
+	}
 
 	return
 }
