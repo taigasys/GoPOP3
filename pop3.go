@@ -176,7 +176,7 @@ func (client *Client) GetStatus() (mailCount, mailBoxSize int, err error) {
 
 	var response string
 	response, err = client.ReadMessage(false)
-
+	
 	if err != nil {
 		return
 	}
@@ -187,14 +187,13 @@ func (client *Client) GetStatus() (mailCount, mailBoxSize int, err error) {
 		return -1, -1, errors.New("Unkown Response Received")
 	}
 
-
-	if mailCount, err = strconv.Atoi(responseParts[0]); err != nil {
+	countString := strings.TrimSpace(responseParts[0])
+	if mailCount, err = strconv.Atoi(countString); err != nil {
 		return
 	}
 
-	if mailBoxSize, err = strconv.Atoi(responseParts[1]); err != nil {
-		return
-	}
+	sizeString := strings.TrimSpace(responseParts[1])
+	mailBoxSize, err = strconv.Atoi(sizeString)
 
 	return
 }
