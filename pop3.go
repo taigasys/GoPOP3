@@ -140,9 +140,10 @@ func (client *Client) Authenticate(auth Auth) (string, error) {
 }
 
 //Sends a "NOOP" command and the server will just reply with a positive repsonse
-func (client *Client) Ping() (string, error) {
+func (client *Client) Ping() error {
 	client.WriteMessage(NOOP)
-	return client.ReadMessage(false)
+	_, err := client.ReadMessage(false)
+	return err
 }
 
 //Messages that have been marked as "deleted" will be unmarked after this command
