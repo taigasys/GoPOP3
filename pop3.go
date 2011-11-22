@@ -28,6 +28,7 @@ const (
 	DELETE = "DELE"
 	QUIT = "QUIT"
 	STATUS = "STAT"
+	LIST = "LIST"
 
 	//Error messages
 	IndexERR = "Index must be greater than zero"
@@ -196,5 +197,19 @@ func (client *Client) GetStatus() (mailCount, mailBoxSize int, err error) {
 	sizeString := strings.TrimSpace(responseParts[1])
 	mailBoxSize, err = strconv.Atoi(sizeString)
 
+	return
+}
+
+//Returns a list of mails
+//First digit is the index of the mail, then a whitespace and the size in octets
+func (client *Client) GetMailList() (response string, err error) {
+	client.WriteMessage(LIST)
+
+	if response, err = client.ReadMessage(true); err != nil {
+		return
+	}
+
+	//Just return the list of mails, not the header
+	response = response[strings.Index(response, "\n"):]
 	return
 }
