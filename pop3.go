@@ -96,6 +96,7 @@ func (client *Client) Command(command string, isResponseMultiLine bool) (string,
 	return client.readMessage(isResponseMultiLine)
 }
 
+//Returns the response of the pop3 server, or an error if any
 func (client *Client) readMessage(isResponseMultiLine bool) (string, error) {
 	//Get first line of the response
 	msg, err := client.stream.ReadString('\n')
