@@ -28,6 +28,7 @@ const (
 	QUIT     = "QUIT"
 	STATUS   = "STAT"
 	LIST     = "LIST"
+	RETRIEVE = "RETR"
 )
 
 var (
@@ -228,6 +229,26 @@ func (client *Client) GetMailStatus(index int) (mailIndex, mailSize int, err err
 	} else {
 		err = UnkownResponseERR
 	}
+
+	return
+}
+
+//Retrieves the raw mail at index as a string
+//This string contains the whole header and the body of the mail
+func (client *Client) GetRawMail(index int) (mail string, err error) {
+	if index < 1 {
+		return "", IndexERR
+	}
+
+	client.WriteMessage(fmt.Sprintf("%s %d", RETRIEVE, index))
+	mail, err = client.ReadMessage(true)
+
+	if err != nil {
+		return
+	}
+
+	//Remove the first line
+	mail = mail[strings.Index(mail, "\n"):]
 
 	return
 }
