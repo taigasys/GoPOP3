@@ -65,39 +65,36 @@ func NewClient(conn net.Conn, name string) (*Client, error) {
 	client.stream = stream
 
 	//Download the greeting from the POP3 server
-	msg, err := client.ReadMessage(false)
+	msg, err := client.stream.ReadString('\n')
+
 
 	if err != nil {
 		return nil, err
 	}
 
 	client.ServerName = name
-	client.Greeting = msg
+	client.Greeting = msg[4:]
 
 	return client, nil
 }
 
-//WriteMessage sends the message to the POP3 server
-func (client *Client) WriteMessage(message string) error {
-	if client == nil {
-		return errors.New("Connection hasn't been established")
-	}
 
-	tmp := message + CRLF
-	_, err1 := client.stream.WriteString(tmp)
-	client.stream.Flush()
-
-	return err1
-}
-
-//ReadMessage reads a single or multiline response from the POP3 server
-//It doesnt finish, until it has received a message
-func (client *Client) ReadMessage(multiLine bool) (string, error) {
+//Sends a command to the POP3-Server and returns the response or an error
+func (client *Client) Command(command string, isResponseMultiLine bool) (string, error) {
 
 	//Check, whether the client connection has already been
 	if client == nil {
 		return "", errors.New("Connection hasn't been established")
 	}
+
+	//Send the command to the server
+	tmp := command + CRLF
+	_, writeErr := client.stream.WriteString(tmp)
+	if writeErr != nil {
+		return "", writeErr
+	}
+	client.stream.Flush()
+
 
 	//Get first line of the response
 	msg, err := client.stream.ReadString('\n')
@@ -110,7 +107,7 @@ func (client *Client) ReadMessage(multiLine bool) (string, error) {
 	if strings.HasPrefix(msg, "+OK") {
 		msg = msg[4:]
 
-		if multiLine {
+		if isResponseMultiLine {
 
 			for true {
 				line, err1 := client.stream.ReadString('\n')
@@ -143,16 +140,14 @@ func (client *Client) Authenticate(auth Auth) (string, error) {
 }
 
 //Sends a "NOOP" command and the server will just reply with a positive repsonse
-func (client *Client) Ping() error {
-	client.WriteMessage(NOOP)
-	_, err := client.ReadMessage(false)
-	return err
+func (client *Client) Ping() (err error) {
+	_, err =  client.Command(NOOP, false)
+	return
 }
 
 //Messages that have been marked as "deleted" will be unmarked after this command
 func (client *Client) Reset() (string, error) {
-	client.WriteMessage(RESET)
-	return client.ReadMessage(false)
+	return client.Command(RESET, false)
 }
 
 //Mark a mail as "deleted"
@@ -162,27 +157,21 @@ func (client *Client) MarkMailAsDeleted(index int) (string, error) {
 		return "", IndexERR
 	}
 
-	client.WriteMessage(DELETE + " " + string(index))
-	return client.ReadMessage(false)
+	return client.Command(fmt.Sprintf("%s %d", DELETE, index), false)
 }
 
 //Issues the Quit-Command, so the POP3 session enters the UPDATE state
 //All mails, which are marked as "deleted", are going to be removed now
 func (client *Client) Quit() (string, error) {
-	client.WriteMessage(QUIT)
-	return client.ReadMessage(false)
+	return client.Command(QUIT, false)
 }
 
 //Retrieves the count of mails and the size of all those mails in the mailbox
 //Mails, which are marked as "deleted", won't show up
 func (client *Client) GetStatus() (mailCount, mailBoxSize int, err error) {
-	client.WriteMessage(STATUS)
-
-	var response string
-	response, err = client.ReadMessage(false)
-
-	if err != nil {
-		return
+	response, cmdErr := client.Command(STATUS, false)
+	if cmdErr != nil {
+		return -1, -1, cmdErr
 	}
 
 	digits := getDigitsFromLine(response)
@@ -200,9 +189,7 @@ func (client *Client) GetStatus() (mailCount, mailBoxSize int, err error) {
 //Returns a list of mails
 //First digit is the index of the mail, then a whitespace and the size in octets
 func (client *Client) GetMailList() (response string, err error) {
-	client.WriteMessage(LIST)
-
-	if response, err = client.ReadMessage(true); err != nil {
+	if response, err = client.Command(LIST, true); err != nil {
 		return
 	}
 
@@ -214,11 +201,10 @@ func (client *Client) GetMailList() (response string, err error) {
 //Returns the index and the size of the mail at index
 func (client *Client) GetMailStatus(index int) (mailIndex, mailSize int, err error) {
 	cmdString := fmt.Sprintf("%s %d", LIST, index)
-	client.WriteMessage(cmdString)
-
-	var response string
-	if response, err = client.ReadMessage(false); err != nil {
-		return
+	
+	response, cmdErr := client.Command(cmdString, false); 
+	if cmdErr !=  nil {
+		return -1, -1, cmdErr
 	}
 
 	digits := getDigitsFromLine(response)
@@ -240,8 +226,7 @@ func (client *Client) GetRawMail(index int) (mail string, err error) {
 		return "", IndexERR
 	}
 
-	client.WriteMessage(fmt.Sprintf("%s %d", RETRIEVE, index))
-	mail, err = client.ReadMessage(true)
+	mail, err = client.Command(fmt.Sprintf("%s %d", RETRIEVE, index), true)
 
 	if err != nil {
 		return

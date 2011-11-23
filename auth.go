@@ -18,16 +18,14 @@ func CreatePlainAuthentication (user, pass string) *PlainAuthentication {
 }
 
 func (auth *PlainAuthentication) Authenticate(client *Client) error {
-	client.WriteMessage(USER + " " + auth.user)
-	_, errUser := client.ReadMessage(false)
-	if errUser != nil {
-		return errUser
+	_, userErr := client.Command(USER + " " + auth.user, false)
+	if userErr != nil {
+		return userErr
 	}
 
-	client.WriteMessage(PASSWORD + " " + auth.pass)
-	_, errPass := client.ReadMessage(false)
-	if errPass != nil {
-		return errPass
+	_, pwErr := client.Command(PASSWORD + " " + auth.pass, false)
+	if pwErr != nil {
+		return pwErr
 	}
 
 	return nil
