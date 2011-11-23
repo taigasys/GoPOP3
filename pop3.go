@@ -138,8 +138,8 @@ func (client *Client) readMessage(isResponseMultiLine bool) (string, error) {
 
 //Authenticates with the Server
 //It uses the provided Authenticationtype auth
-func (client *Client) Authenticate(auth Auth) (string, error) {
-	return "", auth.Authenticate(client)
+func (client *Client) Authenticate(auth Auth) error {
+	return auth.Authenticate(client)
 }
 
 //Sends a "NOOP" command and the server will just reply with a positive repsonse
