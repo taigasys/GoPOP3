@@ -65,7 +65,7 @@ func NewClient(conn net.Conn, name string) (*Client, error) {
 	client.stream = stream
 
 	//Download the greeting from the POP3 server
-	msg, err := client.stream.ReadString('\n')
+	msg, err := client.readMessage(false)
 
 	if err != nil {
 		return nil, err
@@ -93,6 +93,10 @@ func (client *Client) Command(command string, isResponseMultiLine bool) (string,
 	}
 	client.stream.Flush()
 
+	return client.readMessage(isResponseMultiLine)
+}
+
+func (client *Client) readMessage(isResponseMultiLine bool) (string, error) {
 	//Get first line of the response
 	msg, err := client.stream.ReadString('\n')
 
@@ -128,6 +132,7 @@ func (client *Client) Command(command string, isResponseMultiLine bool) (string,
 	}
 
 	return msg, nil
+
 }
 
 //Authenticates with the Server
