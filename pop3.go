@@ -253,6 +253,7 @@ func (client *Client) GetRawMail(index int) (mail string, err error) {
 	return
 }
 
+//Returns every digit, which exists in the string
 func getDigitsFromLine(line string) (digits []int) {
 
 	for _, part := range strings.Split(line, " ") {
