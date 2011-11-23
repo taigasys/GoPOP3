@@ -67,7 +67,6 @@ func NewClient(conn net.Conn, name string) (*Client, error) {
 	//Download the greeting from the POP3 server
 	msg, err := client.stream.ReadString('\n')
 
-
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +76,6 @@ func NewClient(conn net.Conn, name string) (*Client, error) {
 
 	return client, nil
 }
-
 
 //Sends a command to the POP3-Server and returns the response or an error
 func (client *Client) Command(command string, isResponseMultiLine bool) (string, error) {
@@ -94,7 +92,6 @@ func (client *Client) Command(command string, isResponseMultiLine bool) (string,
 		return "", writeErr
 	}
 	client.stream.Flush()
-
 
 	//Get first line of the response
 	msg, err := client.stream.ReadString('\n')
@@ -141,7 +138,7 @@ func (client *Client) Authenticate(auth Auth) (string, error) {
 
 //Sends a "NOOP" command and the server will just reply with a positive repsonse
 func (client *Client) Ping() (err error) {
-	_, err =  client.Command(NOOP, false)
+	_, err = client.Command(NOOP, false)
 	return
 }
 
@@ -188,7 +185,7 @@ func (client *Client) GetStatus() (mailCount, mailBoxSize int, err error) {
 
 //Returns a list of mails
 //First digit is the index of the mail, then a whitespace and the size in octets
-func (client *Client) GetMailList() (response string, err error) {
+func (client *Client) GetRawMailList() (response string, err error) {
 	if response, err = client.Command(LIST, true); err != nil {
 		return
 	}
@@ -201,9 +198,9 @@ func (client *Client) GetMailList() (response string, err error) {
 //Returns the index and the size of the mail at index
 func (client *Client) GetMailStatus(index int) (mailIndex, mailSize int, err error) {
 	cmdString := fmt.Sprintf("%s %d", LIST, index)
-	
-	response, cmdErr := client.Command(cmdString, false); 
-	if cmdErr !=  nil {
+
+	response, cmdErr := client.Command(cmdString, false)
+	if cmdErr != nil {
 		return -1, -1, cmdErr
 	}
 
