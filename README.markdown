@@ -13,8 +13,8 @@ Currently missing POP3 optional commands:
 - UIDL
 - APOP
 
-Installation & Usag
-===================
+Installation
+============
 
 
 In order to install the package, run the following command:
