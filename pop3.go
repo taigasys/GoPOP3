@@ -142,7 +142,7 @@ func (client *Client) Authenticate(auth Auth) error {
 	return auth.Authenticate(client)
 }
 
-//Sends a "NOOP" command and the server will just reply with a positive repsonse
+//Sends a "NOOP" command and the server will just reply with a positive response
 func (client *Client) Ping() (err error) {
 	_, err = client.Command(NOOP, false)
 	return
