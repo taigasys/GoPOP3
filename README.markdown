@@ -31,3 +31,10 @@ First of all, you have to import the package
 	import (
 		"github.com/d3xter/GoPOP3"
 	)
+
+
+Then you can create a connection and try to authenticate:
+
+	plainAuth := pop3.CreatePlainAuthentication("user", "pass")
+	client, dialErr := pop3.Dial("127.0.01:3412")
+	authErr := client.Authenticate(plainAuth)
