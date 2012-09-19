@@ -13,17 +13,20 @@ Currently missing POP3 optional commands:
 - UIDL
 - APOP
 
-Installation
-============
+Installation & Usag
+===================
 
-Just enter the following command in your favourite shell:
 
-	goinstall github.com/d3xter/GoPOP3
+In order to install the package, run the following command:
+
+	go get github.com/d3xter/GoPOP3
+
+
 
 Usage
 =====
 
-To use the pop3-package in your application, you just have to import it:
+First of all, you have to import the package
 
 	import (
 		"github.com/d3xter/GoPOP3"
