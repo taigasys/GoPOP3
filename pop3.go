@@ -12,6 +12,7 @@ import (
 	"net"
 	"strconv"
 	"strings"
+	"crypto/tls"
 )
 
 const (
@@ -55,6 +56,15 @@ func Dial(addr string) (client *Client, err error) {
 
 }
 
+func DialTLS(addr string) (client *Client, err error) {
+	conn, err := tls.Dial("tcp", addr, nil)
+	if err != nil {
+		return nil, err
+	}
+	host := addr[:strings.Index(addr, ":")]
+	return NewClient(conn, host)
+}
+
 //NewClient returns a new Client using an existing connection
 //name is used as the Servername
 func NewClient(conn net.Conn, name string) (*Client, error) {
@@ -87,6 +97,7 @@ func (client *Client) Command(command string, isResponseMultiLine bool) (string,
 
 	//Send the command to the server
 	tmp := command + CRLF
+//	fmt.Println("->", tmp)
 	_, writeErr := client.stream.WriteString(tmp)
 	if writeErr != nil {
 		return "", writeErr
@@ -104,6 +115,7 @@ func (client *Client) readMessage(isResponseMultiLine bool) (string, error) {
 	if err != nil {
 		return "", err
 	}
+//	fmt.Println("<-", msg)
 
 	//Check, whether the response starts with "+OK" or "-ERR", otherwise return an error
 	if strings.HasPrefix(msg, "+OK") {
@@ -117,7 +129,7 @@ func (client *Client) readMessage(isResponseMultiLine bool) (string, error) {
 				if err1 != nil {
 					return "", err1
 				}
-
+//				fmt.Println("<<", line)
 				if line == "."+CRLF {
 					break
 				}
