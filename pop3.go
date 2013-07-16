@@ -12,6 +12,7 @@ import (
 	"net"
 	"strconv"
 	"strings"
+	"crypto/tls"
 )
 
 const (
@@ -53,6 +54,15 @@ func Dial(addr string) (client *Client, err error) {
 	host := addr[:strings.Index(addr, ":")]
 	return NewClient(conn, host)
 
+}
+
+func DialTLS(addr string) (client *Client, err error) {
+	conn, err := tls.Dial("tcp", addr, nil)
+	if err != nil {
+		return nil, err
+	}
+	host := addr[:strings.Index(addr, ":")]
+	return NewClient(conn, host)
 }
 
 //NewClient returns a new Client using an existing connection
